@@ -49,6 +49,9 @@ class SymbolSet(Set):
     def __len__(self, key):
         return len(self._symbols)
 
+    def __contains__(self, elem):
+        return elem in self._symbols
+
     def __unicode__(self):
         return u'{%s}' % [unicode(s) for s in self._symbols]
 
