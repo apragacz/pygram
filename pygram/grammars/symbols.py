@@ -34,26 +34,28 @@ class SymbolSet(Set):
         self._symbols.append(symbol)
         return symbol
 
-    def __list__(self):
-        return list(self._symbols)
-
-    def __tuple__(self):
-        return tuple(self._symbols)
+    def __eq__(self, other):
+        if id(self) != id(other):
+            return False
+        return True
 
     def __iter__(self):
         return iter(self._symbols)
 
     def __getitem__(self, key):
-        return self._symbols[key]
+        for s in self._symbols:
+            if unicode(s) == unicode(key):
+                return s
+        raise KeyError('symbol %s is not defined' % key)
 
-    def __len__(self, key):
+    def __len__(self):
         return len(self._symbols)
 
     def __contains__(self, elem):
         return elem in self._symbols
 
     def __unicode__(self):
-        return u'{%s}' % [unicode(s) for s in self._symbols]
+        return u'{%s}' % (u', '.join([unicode(s) for s in self._symbols]))
 
 
 class FileLocation(object):
@@ -66,7 +68,7 @@ class FileLocation(object):
 
 
 class SymbolInstance(object):
-    def __init__(self, symbol, value, location=None):
+    def __init__(self, symbol, value=None, location=None):
         self._symbol = symbol
         self._value = value
         self._location = location

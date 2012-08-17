@@ -11,8 +11,8 @@ class Reduction(object):
         return self._rule
 
     def reduce_instances(self, symbol_instances):
-        assert(len(symbol_instances) == len(self._rule.body_symbol_types))
-        assert(all([si.symbol == bs for si, bs in (symbol_instances,
+        assert(len(symbol_instances) == len(self._rule.body_symbols))
+        assert(all([si.symbol == bs for si, bs in zip(symbol_instances,
                                                 self._rule.body_symbols)]))
         value = self._callback(*[si.value for si in symbol_instances])
         return SymbolInstance(symbol=self._rule.head_symbol, value=value)
