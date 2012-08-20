@@ -4,7 +4,7 @@ from .base import GrammarRule, Grammar
 class ContextFreeGrammarRule(GrammarRule):
     def __init__(self, head_symbol, body_symbols):
         self._head_symbol = head_symbol
-        self._body_symbols = body_symbols
+        self._body_symbols = tuple(body_symbols)
 
     @property
     def rule(self):
