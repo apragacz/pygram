@@ -23,7 +23,8 @@ class LRParser(object):
                 #reduction
                 reduction_len = len(reduction.rule.body_symbols)
                 reduction_elems = self._stack[-reduction_len:]
-                self._stack = self._stack[:-reduction_len]
+                for _ in xrange(reduction_len):
+                    self._stack.pop()
                 symbol_instances = [si for si, _ in reduction_elems]
                 reduced_symbol_instance = reduction.reduce_instances(
                                                             symbol_instances)
