@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from pygram.grammars.cfg import (ContextFreeGrammar,
-    ContextFreeGrammarProcessor, ContextFreeGrammarRule)
+from pygram.grammars.cfg import (CFG, CFGExtended, CFGRule)
 from pygram.grammars.symbols import SymbolSet, SymbolInstance
 from pygram.grammars.reductions import (Reduction)
 
@@ -9,7 +8,7 @@ from pygram.grammars.reductions import (Reduction)
 class GrammarTestCase(TestCase):
 
     def test_simple(self):
-        Rule = ContextFreeGrammarRule
+        Rule = CFGRule
 
         test_symbols = SymbolSet('test')
         test0 = test_symbols.new_symbol()
@@ -78,9 +77,9 @@ class GrammarTestCase(TestCase):
             Reduction(rules[6], lambda x1, x2: '%s%s}' % (x1, x2)),
         ]
 
-        g = ContextFreeGrammar(nonterminal_symbols, terminal_symbols, rules, S)
-        gp = ContextFreeGrammarProcessor(nonterminal_symbols, terminal_symbols,
-                                            reductions, S)
+        cfg = CFG(nonterminal_symbols, terminal_symbols, rules, S)
+        cfgex = CFGExtended(nonterminal_symbols, terminal_symbols,
+                            reductions, S)
 
         symbol_instances1 = [
             SymbolInstance(rb_o),
