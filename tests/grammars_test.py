@@ -22,20 +22,23 @@ class GrammarTestCase(TestCase):
         terminal_symbols = SymbolSet('terminal')
         nonterminal_symbols = SymbolSet('nonterminal')
 
-        rb_o = terminal_symbols.new_symbol('(')
-        rb_c = terminal_symbols.new_symbol(')')
-        cb_o = terminal_symbols.new_symbol('{')
-        cb_c = terminal_symbols.new_symbol('}')
-        sb_o = terminal_symbols.new_symbol('[')
-        sb_c = terminal_symbols.new_symbol(']')
+        rb_o = terminal_symbols.new_symbol('rb_o', '(')
+        rb_c = terminal_symbols.new_symbol('rb_c', ')')
+        cb_o = terminal_symbols.new_symbol('cb_o', '{')
+        cb_c = terminal_symbols.new_symbol('cb_c', '}')
+        sb_o = terminal_symbols.new_symbol('sb_o', '[')
+        sb_c = terminal_symbols.new_symbol('sb_c', ']')
 
         ts_list = [rb_o, rb_c, cb_o, cb_c, sb_o, sb_c]
 
         S = nonterminal_symbols.new_symbol('S')
 
         self.assertRaises(KeyError, lambda: nonterminal_symbols['T'])
+        self.assertRaises(AttributeError, lambda: nonterminal_symbols.S2)
+        self.assertRaises(AttributeError, lambda: nonterminal_symbols.T)
 
         self.assertEqual(S, nonterminal_symbols['S'])
+        self.assertEqual(S, nonterminal_symbols.S)
         self.assertNotEqual(S, 'S')
         self.assertNotEqual(S, S2)
         self.assertNotEqual(rb_o, rb_c)

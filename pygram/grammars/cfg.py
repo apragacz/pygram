@@ -1,4 +1,5 @@
 from .base import GrammarRule, Grammar
+from .symbols import fundamental
 
 
 class CFGRule(GrammarRule):
@@ -44,12 +45,59 @@ class CFG(Grammar):
         self._term_symbols = term_symbols
         self._rules = tuple(rules)
         self._start_symbol = start_symbol
+        self._first_terminals = {}
+        self._follow_terminals = {}
+        self._calculate_first_terminals()
+        self._calculate_follow_terminals()
+
+    def _calculate_first_terminals(self):
+        self._first_terminals = {}
+        for s in self._term_symbols:
+            self._first_terminals[s] = set([s])
+
+        for s in self._nonterm_symbols:
+            self._first_terminals[s] = set([s])
+            if CFGRule(s, [fundamental.empty]) in self.rules_for_symbol(s):
+                self._first_terminals[s].add(fundamental.empty)
+
+        updated = True
+        while updated:
+            updated = False
+            for s in self._nonterm_symbols:
+                symbol_rules = self.rules_for_symbol(s)
+                for r in symbol_rules:
+                    contains_first = True
+                    for bs in r.body_symbols:
+                        # if not all previous body symbols contained
+                        # empty symbol, stop adding new symbols
+                        if not contains_first:
+                            break
+
+                        bs_first = self._first_terminals[bs]
+
+                        cnt1 = len(self._first_terminals[s])
+                        self._first_terminals[s].update(bs_first)
+                        cnt2 = len(self._first_terminals[s])
+
+                        if cnt2 > cnt1:
+                            updated = True
+
+                        contains_first = fundamental.empty in bs_first
+
+    def _calculate_follow_terminals(self):
+        self._follow_terminals = {}
+        #TODO:
+        pass
+
+    def rules_for_symbol(self, nonterm_symbol):
+        return tuple((r for r in self._rules
+                        if r.head_symbol == nonterm_symbol))
 
     def first_terminals(self, nonterm_symbol):
-        pass
+        return self._first_terminals[nonterm_symbol]
 
     def follow_terminals(self, nonterm_symbol):
-        pass
+        return self._follow_terminals[nonterm_symbol]
 
 
 class CFGExtended(CFG):
