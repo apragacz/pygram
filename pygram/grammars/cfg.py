@@ -88,12 +88,11 @@ class CFG(Grammar):
                             for bs in r.body_symbols]):
 
                         cnt1 = len(self._first_terminals[s])
-                        self._first_terminals[s].update(bs_first)
+                        self._first_terminals[s].add(fundamental.empty)
                         cnt2 = len(self._first_terminals[s])
 
                         if cnt2 > cnt1:
                             updated = True
-
 
     def _calculate_follow_terminals(self):
         self._follow_terminals = {}
