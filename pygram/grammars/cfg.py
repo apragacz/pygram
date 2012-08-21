@@ -84,6 +84,17 @@ class CFG(Grammar):
 
                         contains_first = fundamental.empty in bs_first
 
+                    if all([fundamental.empty in self._first_terminals[bs]
+                            for bs in r.body_symbols]):
+
+                        cnt1 = len(self._first_terminals[s])
+                        self._first_terminals[s].update(bs_first)
+                        cnt2 = len(self._first_terminals[s])
+
+                        if cnt2 > cnt1:
+                            updated = True
+
+
     def _calculate_follow_terminals(self):
         self._follow_terminals = {}
         #TODO:
