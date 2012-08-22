@@ -7,6 +7,14 @@ class Symbol(object):
         self._codename = codename
         self._display_name = display_name
 
+    @property
+    def codename(self):
+        return self._codename
+
+    @property
+    def display_name(self):
+        return self._display_name
+
     def __hash__(self):
         return hash(self._codename)
 
@@ -30,26 +38,43 @@ class Symbol(object):
 
 
 class SymbolSet(Set):
-    def __init__(self, name):
-        self._name = name
+    def __init__(self, codename, symbols_spec):
+        self._codename = codename
         self._symbols = OrderedDict()
+        for spec in symbols_spec:
+            try:
+                sp = list(spec)
+            except TypeError:
+                sp = [spec]
+            try:
+                codename = sp[0]
+                display_name = codename
+            except IndexError:
+                raise ValueError('symbol spec is empty')
 
-    def new_symbol(self, codename=None, display_name=None):
-        if codename is None:
-            codename = '%s%d' % (self._name, len(self._symbols))
-        if display_name is None:
-            display_name = codename
-        symbol = Symbol(codename, display_name, self)
+            try:
+                display_name = sp[1]
+            except IndexError:
+                pass
 
-        if symbol in self._symbols:
-            raise ValueError('SymbolSet.new_symbol:'
-                            ' symbol %d already exists' % codename)
+            if codename is None:
+                codename = '%s%d' % (self._codename, len(self._symbols))
+            if display_name is None:
+                display_name = codename
+            symbol = Symbol(codename, display_name, self)
 
-        self._symbols[codename] = symbol
-        return symbol
+            if symbol in self._symbols:
+                raise ValueError('symbol %d already exists' % codename)
+
+            self._symbols[codename] = symbol
 
     def __eq__(self, other):
-        if self is not other:
+        if self.__class__ != other.__class__:
+            return False
+        if self._codename != other._codename:
+            return False
+        #test same symbol codenames, in the same order
+        if self._symbols.keys() != other._symbols.keys():
             return False
         return True
 
@@ -108,6 +133,4 @@ class SymbolInstance(object):
         return self._value
 
 
-fundamental = SymbolSet('fundamental')
-empty = fundamental.new_symbol('empty', 'e')
-end = fundamental.new_symbol('end', '$')
+fundamental = SymbolSet('fundamental', [('empty', 'e'), ('end', '$')])

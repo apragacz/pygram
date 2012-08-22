@@ -74,9 +74,11 @@ class CFG(Grammar):
                             break
 
                         bs_first = self._first_terminals[bs]
+                        bs_first_ne = [x for x in bs_first
+                                        if x != fundamental.empty]
 
                         cnt1 = len(self._first_terminals[s])
-                        self._first_terminals[s].update(bs_first)
+                        self._first_terminals[s].update(bs_first_ne)
                         cnt2 = len(self._first_terminals[s])
 
                         if cnt2 > cnt1:

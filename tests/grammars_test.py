@@ -10,28 +10,35 @@ class GrammarTestCase(TestCase):
     def test_simple(self):
         Rule = CFGRule
 
-        test_symbols = SymbolSet('test')
-        test0 = test_symbols.new_symbol()
+        test_symbols = SymbolSet('test', [None])
+        test0 = test_symbols.test0
 
-        s_symbols = SymbolSet('S')
-        S2 = s_symbols.new_symbol('S')
+        s_symbols = SymbolSet('S', ['S'])
+        S2 = s_symbols.S
 
         self.assertEqual(unicode(test0), u'test0')
         self.assertEqual(unicode(test_symbols), u'{test0}')
 
-        terminal_symbols = SymbolSet('terminal')
-        nonterminal_symbols = SymbolSet('nonterminal')
+        terminal_symbols = SymbolSet('terminal', [
+            ('rb_o', '('),
+            ('rb_c', ')'),
+            ('cb_o', '{'),
+            ('cb_c', '}'),
+            ('sb_o', '['),
+            ('sb_c', ']'),
+        ])
+        nonterminal_symbols = SymbolSet('nonterminal', ['S'])
 
-        rb_o = terminal_symbols.new_symbol('rb_o', '(')
-        rb_c = terminal_symbols.new_symbol('rb_c', ')')
-        cb_o = terminal_symbols.new_symbol('cb_o', '{')
-        cb_c = terminal_symbols.new_symbol('cb_c', '}')
-        sb_o = terminal_symbols.new_symbol('sb_o', '[')
-        sb_c = terminal_symbols.new_symbol('sb_c', ']')
+        rb_o = terminal_symbols.rb_o
+        rb_c = terminal_symbols.rb_c
+        cb_o = terminal_symbols.cb_o
+        cb_c = terminal_symbols.cb_c
+        sb_o = terminal_symbols.sb_o
+        sb_c = terminal_symbols.sb_c
+
+        S = nonterminal_symbols.S
 
         ts_list = [rb_o, rb_c, cb_o, cb_c, sb_o, sb_c]
-
-        S = nonterminal_symbols.new_symbol('S')
 
         self.assertRaises(KeyError, lambda: nonterminal_symbols['T'])
         self.assertRaises(AttributeError, lambda: nonterminal_symbols.S2)
