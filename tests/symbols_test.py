@@ -21,6 +21,7 @@ class SymbolTestCase(TestCase):
             ('sb_o', '['),
             ('sb_c', ']'),
         ])
+
         nonterminal_symbols = SymbolSet('nonterminal', ['S'])
         nonterminal_symbols2 = SymbolSet('nonterminal', ['test0'])
 
@@ -34,6 +35,9 @@ class SymbolTestCase(TestCase):
         S = nonterminal_symbols.S
 
         ts_list = [rb_o, rb_c, cb_o, cb_c, sb_o, sb_c]
+
+        self.assertRaises(ValueError, lambda: SymbolSet('test', [()]))
+        self.assertRaises(ValueError, lambda: SymbolSet('test', ['a', 'a']))
 
         self.assertEqual(unicode(test0), u'test0')
         self.assertEqual(str(test0), 'test0')
@@ -54,11 +58,18 @@ class SymbolTestCase(TestCase):
         self.assertEqual(S, nonterminal_symbols.S)
         self.assertNotEqual(S, 'S')
         self.assertNotEqual(S, S2)
+
+        self.assertEqual(rb_o, rb_o)
+        self.assertEqual(rb_o, terminal_symbols['('])
         self.assertNotEqual(rb_o, rb_c)
         self.assertNotEqual(rb_o, test0)
+
         self.assertNotEqual(test0, nonterminal_symbols2.test0)
 
         self.assertEqual(len(set(ts_list + ts_list)), 6)
+        self.assertEqual(len(set(list(terminal_symbols)
+                                + list(terminal_symbols)
+                                + list(nonterminal_symbols))), 7)
 
         self.assertEqual(terminal_symbols, terminal_symbols)
         self.assertNotEqual(terminal_symbols, nonterminal_symbols)

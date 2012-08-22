@@ -66,8 +66,8 @@ class SymbolSet(Set):
                 display_name = codename
             symbol = Symbol(codename, display_name, self)
 
-            if symbol in self._symbols:
-                raise ValueError('symbol %d already exists' % codename)
+            if codename in self._symbols:
+                raise ValueError('symbol %s already exists' % codename)
 
             self._symbols[codename] = symbol
 
@@ -98,7 +98,7 @@ class SymbolSet(Set):
             return self._symbols[key]
         else:
             for s in self._symbols.itervalues():
-                if unicode(s) == unicode(key):
+                if s.display_name == key:
                     return s
             raise KeyError('symbol %s is not defined' % key)
 
