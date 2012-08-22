@@ -100,8 +100,28 @@ class CFG(Grammar):
 
     def _calculate_follow_terminals(self):
         self._follow_terminals = {}
-        #TODO:
-        pass
+        self._follow_terminals[self._start_symbol] = set([fundamental.end])
+        updated = True
+        while updated:
+            updated = False
+            for r in self._rules:
+                prev_bs = None
+                for bs in r.body_symbols:
+                    if prev_bs is not None:
+                        bs_first = self.first_terminals(bs)
+                        bs_first_ne = [x for x in bs_first
+                                        if x != fundamental.empty]
+                        self._follow_terminals.setdefault(prev_bs, set([]))
+                        cnt1 = len(self._follow_terminals[prev_bs])
+                        self._follow_terminals[prev_bs].update(bs_first_ne)
+                        cnt2 = len(self._follow_terminals[prev_bs])
+                        if cnt2 > cnt1:
+                            updated = True
+
+                        #TODO: next bs
+
+        #TODO: A -> a b -> follow(A).union(follow(b))
+        #TODO: A -> a b c -> follow(A).union(follow(b)) if empty in c
 
     def rules_for_symbol(self, nonterm_symbol):
         return tuple((r for r in self._rules

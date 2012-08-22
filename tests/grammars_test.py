@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from pygram.grammars.cfg import (CFG, CFGExtended, CFGRule)
-from pygram.grammars.symbols import SymbolSet, SymbolInstance
-from pygram.grammars.reductions import (Reduction)
+from pygram.grammars.cfg import CFG, CFGExtended, CFGRule
+from pygram.grammars.reductions import Reduction
+from pygram.grammars.symbols import SymbolSet, SymbolInstance, fundamental
 
 
 class GrammarTestCase(TestCase):
@@ -80,6 +80,23 @@ class GrammarTestCase(TestCase):
         self.assertSetEqual(cfg.first_terminals(S), set([rb_o, cb_o, sb_o]))
 
         self.assertSetEqual(cfgex.first_terminals(rb_o), set([rb_o]))
+
+    def test_empty_symbol(self):
+
+        nt = SymbolSet('nt', [
+            'T',
+            'S',
+        ])
+
+        rules = [
+            CFGRule(nt.S, (nt.T, nt.T)),
+            CFGRule(nt.T, (fundamental.empty,)),
+        ]
+
+        cfg = CFG(nt, fundamental, rules, nt.S)
+
+        self.assertSetEqual(cfg.first_terminals(nt.S), set([fundamental.empty]))
+        self.assertSetEqual(cfg.first_terminals(nt.T), set([fundamental.empty]))
 
     def test_exp(self):
 
