@@ -82,7 +82,7 @@ class SymbolSet(Set):
         return True
 
     def __hash__(self):
-        return hash(id(self))
+        return hash(self._codename)
 
     def __iter__(self):
         return self._symbols.itervalues()
