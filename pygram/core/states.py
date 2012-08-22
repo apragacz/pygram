@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 
 
-class State(object):
+class Action(object):
 
     __metaclass__ = ABCMeta
 
@@ -14,12 +14,53 @@ class State(object):
         pass
 
 
-class AtomState(State):
+class State(object):
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def actions(self):
+        pass
+
+    @abstractmethod
+    def next_states(self, action):
+        pass
+
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
+    def __hash__(self):
+        pass
+
+
+class DeterministicState(object):
+
+    __metaclass__ = ABCMeta
+
+    def next_states(self, action):
+        return [self.next_state(action)]
+
+    @abstractmethod
+    def next_state(self, action):
+        pass
+
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
+    def __hash__(self):
+        pass
+
+
+class AtomState(DeterministicState):
 
     __metaclass__ = ABCMeta
 
 
-class MultiState(State):
+class MultiState(DeterministicState):
 
     __metaclass__ = ABCMeta
 
