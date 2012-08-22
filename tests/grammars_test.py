@@ -39,6 +39,7 @@ class GrammarTestCase(TestCase):
         ]
 
         self.assertEqual(unicode(rules[3]), 'S -> ( S )')
+        self.assertEqual(len(set(rules + rules)), 7)
 
         reductions = [
             Reduction(rules[0], lambda x1, x2: '()'),
@@ -77,3 +78,41 @@ class GrammarTestCase(TestCase):
         self.assertSetEqual(cfg.first_terminals(rb_o), set([rb_o]))
         self.assertSetEqual(cfg.first_terminals(rb_c), set([rb_c]))
         self.assertSetEqual(cfg.first_terminals(S), set([rb_o, cb_o, sb_o]))
+
+        self.assertSetEqual(cfgex.first_terminals(rb_o), set([rb_o]))
+
+    def test_exp(self):
+
+        t = SymbolSet('t', [
+            ('bra_open', '('),
+            ('bra_close', ')'),
+            ('add', '+'),
+            ('mul', '*'),
+            'id',
+            'num',
+        ])
+
+        nt = SymbolSet('nt', [
+            'value',
+            'exp',
+            'product',
+            'start',
+        ])
+
+        rules = [
+            CFGRule(nt.value, (t.id,)),
+            CFGRule(nt.value, (t.num,)),
+            CFGRule(nt.value, (t.bra_open, nt.exp, t.bra_close)),
+            CFGRule(nt.product, (nt.value,)),
+            CFGRule(nt.product, (nt.product, t.mul, nt.value)),
+            CFGRule(nt.exp, (nt.product,)),
+            CFGRule(nt.exp, (nt.exp, t.add, nt.product)),
+            CFGRule(nt.start, (nt.exp,)),
+        ]
+
+        cfg = CFG(nt, t, rules, nt.start)
+
+        first_terminals = set([t.bra_open, t.id, t.num])
+
+        for s in nt:
+            self.assertSetEqual(cfg.first_terminals(s), first_terminals)
