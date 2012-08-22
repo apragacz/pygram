@@ -56,7 +56,7 @@ class CFG(Grammar):
             self._first_terminals[s] = set([s])
 
         for s in self._nonterm_symbols:
-            self._first_terminals[s] = set([s])
+            self._first_terminals[s] = set([])
             if CFGRule(s, [fundamental.empty]) in self.rules_for_symbol(s):
                 self._first_terminals[s].add(fundamental.empty)
 
@@ -82,6 +82,7 @@ class CFG(Grammar):
                         cnt2 = len(self._first_terminals[s])
 
                         if cnt2 > cnt1:
+                            print '%s %s updated with %s' % (s, self._first_terminals[s], bs_first_ne)
                             updated = True
 
                         contains_first = fundamental.empty in bs_first
@@ -94,6 +95,7 @@ class CFG(Grammar):
                         cnt2 = len(self._first_terminals[s])
 
                         if cnt2 > cnt1:
+                            print '%s %s updated with %s' % (s, self._first_terminals[s], fundamental.empty)
                             updated = True
 
     def _calculate_follow_terminals(self):
@@ -105,8 +107,8 @@ class CFG(Grammar):
         return tuple((r for r in self._rules
                         if r.head_symbol == nonterm_symbol))
 
-    def first_terminals(self, nonterm_symbol):
-        return self._first_terminals[nonterm_symbol]
+    def first_terminals(self, symbol):
+        return self._first_terminals[symbol]
 
     def follow_terminals(self, nonterm_symbol):
         return self._follow_terminals[nonterm_symbol]

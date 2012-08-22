@@ -43,7 +43,10 @@ class SymbolSet(Set):
         self._symbols = OrderedDict()
         for spec in symbols_spec:
             try:
-                sp = list(spec)
+                if not isinstance(spec, basestring):
+                    sp = list(spec)
+                else:
+                    sp = [spec]
             except TypeError:
                 sp = [spec]
             try:
@@ -104,6 +107,14 @@ class SymbolSet(Set):
 
     def __contains__(self, elem):
         return elem in self._symbols.values()
+
+    def __repr__(self):
+        return 'SymbolSet(%s, [%s])' % (
+                        self._codename,
+                        ', '.join([repr(s) for s in self._symbols.values()]))
+
+    def __str__(self):
+        return '{%s}' % (', '.join([str(s) for s in self._symbols.values()]))
 
     def __unicode__(self):
         return u'{%s}' % (u', '.join([unicode(s) for s in self._symbols.values()]))

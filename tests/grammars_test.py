@@ -16,9 +16,6 @@ class GrammarTestCase(TestCase):
         s_symbols = SymbolSet('S', ['S'])
         S2 = s_symbols.S
 
-        self.assertEqual(unicode(test0), u'test0')
-        self.assertEqual(unicode(test_symbols), u'{test0}')
-
         terminal_symbols = SymbolSet('terminal', [
             ('rb_o', '('),
             ('rb_c', ')'),
@@ -28,6 +25,7 @@ class GrammarTestCase(TestCase):
             ('sb_c', ']'),
         ])
         nonterminal_symbols = SymbolSet('nonterminal', ['S'])
+        nonterminal_symbols2 = SymbolSet('nonterminal', ['test0'])
 
         rb_o = terminal_symbols.rb_o
         rb_c = terminal_symbols.rb_c
@@ -40,6 +38,20 @@ class GrammarTestCase(TestCase):
 
         ts_list = [rb_o, rb_c, cb_o, cb_c, sb_o, sb_c]
 
+        print nonterminal_symbols
+        print repr(nonterminal_symbols2)
+
+        self.assertEqual(unicode(test0), u'test0')
+        self.assertEqual(str(test0), 'test0')
+        self.assertEqual(repr(test0), 'test0')
+        self.assertEqual(unicode(test_symbols), u'{test0}')
+        self.assertEqual(str(test_symbols), '{test0}')
+        self.assertEqual(repr(test_symbols), 'SymbolSet(test, [test0])')
+        self.assertEqual(test0.codename, u'test0')
+        self.assertEqual(test0.display_name, u'test0')
+
+        self.assertEqual(rb_o.display_name, '(')
+
         self.assertRaises(KeyError, lambda: nonterminal_symbols['T'])
         self.assertRaises(AttributeError, lambda: nonterminal_symbols.S2)
         self.assertRaises(AttributeError, lambda: nonterminal_symbols.T)
@@ -50,6 +62,7 @@ class GrammarTestCase(TestCase):
         self.assertNotEqual(S, S2)
         self.assertNotEqual(rb_o, rb_c)
         self.assertNotEqual(rb_o, test0)
+        self.assertNotEqual(test0, nonterminal_symbols2.test0)
 
         self.assertEqual(terminal_symbols, terminal_symbols)
         self.assertNotEqual(terminal_symbols, nonterminal_symbols)
@@ -110,3 +123,7 @@ class GrammarTestCase(TestCase):
         si2 = reductions[4].reduce_instances(symbol_instances2)
         self.assertEqual(si2.symbol, S)
         self.assertEqual(si2.value, '[([])]')
+
+        self.assertSetEqual(cfg.first_terminals(rb_o), set([rb_o]))
+        self.assertSetEqual(cfg.first_terminals(rb_c), set([rb_c]))
+        self.assertSetEqual(cfg.first_terminals(S), set([rb_o, cb_o, sb_o]))
