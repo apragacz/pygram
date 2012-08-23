@@ -133,3 +133,9 @@ class GrammarTestCase(TestCase):
 
         for s in nt:
             self.assertSetEqual(cfg.first_terminals(s), first_terminals)
+            print s
+            print cfg.follow_terminals(s)
+
+        self.assertSetEqual(cfg.follow_terminals(nt.value), set([
+            t.bra_close, t.add, t.mul
+        ]))

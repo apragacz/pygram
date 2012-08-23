@@ -66,12 +66,7 @@ class CFG(Grammar):
             for s in self._nonterm_symbols:
                 symbol_rules = self.rules_for_symbol(s)
                 for r in symbol_rules:
-                    contains_first = True
                     for bs in r.body_symbols:
-                        # if not all previous body symbols contained
-                        # empty symbol, stop adding new symbols
-                        if not contains_first:
-                            break
 
                         bs_first = self._first_terminals[bs]
                         bs_first_ne = [x for x in bs_first
@@ -82,11 +77,15 @@ class CFG(Grammar):
                         cnt2 = len(self._first_terminals[s])
 
                         if cnt2 > cnt1:
-                            print '%s %s updated with %s' % (s, self._first_terminals[s], bs_first_ne)
                             updated = True
 
-                        contains_first = fundamental.empty in bs_first
+                        # if not all previous body symbols and bs contained
+                        # empty symbol, stop adding new symbols
+                        if not fundamental.empty in bs_first:
+                            break
 
+                    # if its possible to derive empty symbol from all body
+                    # symbols, it's also possible to derive it from head symbol
                     if all([fundamental.empty in self._first_terminals[bs]
                             for bs in r.body_symbols]):
 
@@ -95,7 +94,6 @@ class CFG(Grammar):
                         cnt2 = len(self._first_terminals[s])
 
                         if cnt2 > cnt1:
-                            print '%s %s updated with %s' % (s, self._first_terminals[s], fundamental.empty)
                             updated = True
 
     def _calculate_follow_terminals(self):
@@ -105,23 +103,43 @@ class CFG(Grammar):
         while updated:
             updated = False
             for r in self._rules:
-                prev_bs = None
-                for bs in r.body_symbols:
-                    if prev_bs is not None:
-                        bs_first = self.first_terminals(bs)
-                        bs_first_ne = [x for x in bs_first
+                hs = r.head_symbol
+                for i, bs in enumerate(r.body_symbols):
+                    self._follow_terminals.setdefault(bs, set([]))
+                    #search all body symbols to the right of bs
+                    for next_bs in r.body_symbols[(i + 1):]:
+
+                        next_bs_first = self.first_terminals(next_bs)
+                        next_bs_first_ne = [x for x in next_bs_first
                                         if x != fundamental.empty]
-                        self._follow_terminals.setdefault(prev_bs, set([]))
-                        cnt1 = len(self._follow_terminals[prev_bs])
-                        self._follow_terminals[prev_bs].update(bs_first_ne)
-                        cnt2 = len(self._follow_terminals[prev_bs])
+
+                        cnt1 = len(self._follow_terminals[bs])
+                        self._follow_terminals[bs].update(next_bs_first_ne)
+                        cnt2 = len(self._follow_terminals[bs])
                         if cnt2 > cnt1:
                             updated = True
 
-                        #TODO: next bs
+                        # continue looping only if empty symbol
+                        # is derivable from next_bs
+                        if not fundamental.empty in next_bs_first:
+                            break
 
-        #TODO: A -> a b -> follow(A).union(follow(b))
-        #TODO: A -> a b c -> follow(A).union(follow(b)) if empty in c
+                self._follow_terminals.setdefault(hs, set([]))
+                #search all body symbols from the end to the beginning
+                for bs in reversed(r.body_symbols):
+                    bs_first = self.first_terminals(bs)
+                    bs_follow = self._follow_terminals[bs]
+
+                    cnt1 = len(self._follow_terminals[hs])
+                    self._follow_terminals[hs].update(bs_follow)
+                    cnt2 = len(self._follow_terminals[hs])
+                    if cnt2 > cnt1:
+                        updated = True
+
+                    # continue looping only if empty symbol
+                    # is derivable from bs
+                    if not fundamental.empty in bs_first:
+                        break
 
     def rules_for_symbol(self, nonterm_symbol):
         return tuple((r for r in self._rules
