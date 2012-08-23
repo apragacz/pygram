@@ -41,8 +41,8 @@ class CFG(Grammar):
     """ context-free grammar """
     def __init__(self, nonterm_symbols, term_symbols, rules,
                 start_symbol):
-        self._nonterm_symbols = nonterm_symbols
-        self._term_symbols = term_symbols
+        self._nonterm_symbols = frozenset(nonterm_symbols)
+        self._term_symbols = frozenset(term_symbols)
         self._rules = tuple(rules)
         self._start_symbol = start_symbol
         self._first_terminals = {}
@@ -150,6 +150,22 @@ class CFG(Grammar):
 
     def follow_terminals(self, nonterm_symbol):
         return self._follow_terminals[nonterm_symbol]
+
+    @property
+    def terminal_symbols(self):
+        return self._term_symbols
+
+    @property
+    def nonterminal_symbols(self):
+        return self._nonterm_symbols
+
+    @property
+    def rules(self):
+        return self._rules
+
+    @property
+    def start_symbol(self):
+        return self._start_symbol
 
 
 class CFGExtended(CFG):
