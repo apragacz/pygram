@@ -126,13 +126,13 @@ class CFG(Grammar):
 
                 self._follow_terminals.setdefault(hs, set([]))
                 #search all body symbols from the end to the beginning
+                hs_follow = self._follow_terminals[hs]
                 for bs in reversed(r.body_symbols):
                     bs_first = self.first_terminals(bs)
-                    bs_follow = self._follow_terminals[bs]
 
-                    cnt1 = len(self._follow_terminals[hs])
-                    self._follow_terminals[hs].update(bs_follow)
-                    cnt2 = len(self._follow_terminals[hs])
+                    cnt1 = len(self._follow_terminals[bs])
+                    self._follow_terminals[bs].update(hs_follow)
+                    cnt2 = len(self._follow_terminals[bs])
                     if cnt2 > cnt1:
                         updated = True
 

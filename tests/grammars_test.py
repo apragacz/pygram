@@ -133,9 +133,34 @@ class GrammarTestCase(TestCase):
 
         for s in nt:
             self.assertSetEqual(cfg.first_terminals(s), first_terminals)
-            print s
-            print cfg.follow_terminals(s)
 
-        self.assertSetEqual(cfg.follow_terminals(nt.value), set([
-            t.bra_close, t.add, t.mul
+        for s in [nt.value, nt.product]:
+            self.assertSetEqual(cfg.follow_terminals(s), set([
+                t.bra_close, t.add, t.mul, fundamental.end
+            ]))
+
+        self.assertSetEqual(cfg.follow_terminals(nt.exp), set([
+            t.bra_close, t.add, fundamental.end
+        ]))
+        self.assertSetEqual(cfg.follow_terminals(nt.start), set([
+            fundamental.end
+        ]))
+
+        self.assertSetEqual(cfg.follow_terminals(t.bra_open), set([
+            t.id, t.num, t.bra_open
+        ]))
+        self.assertSetEqual(cfg.follow_terminals(t.bra_close), set([
+            t.mul, t.add, fundamental.end, t.bra_close
+        ]))
+        self.assertSetEqual(cfg.follow_terminals(t.add), set([
+            t.id, t.num, t.bra_open
+        ]))
+        self.assertSetEqual(cfg.follow_terminals(t.mul), set([
+            t.id, t.num, t.bra_open
+        ]))
+        self.assertSetEqual(cfg.follow_terminals(t.id), set([
+            t.mul, t.add, fundamental.end, t.bra_close
+        ]))
+        self.assertSetEqual(cfg.follow_terminals(t.num), set([
+            t.mul, t.add, fundamental.end, t.bra_close
         ]))
