@@ -9,6 +9,7 @@ class SymbolTestCase(TestCase):
 
         test_symbols = SymbolSet('test', [None])
         test0 = test_symbols.test0
+        test_symbols2 = SymbolSet('test', [('t', 'T')])
 
         s_symbols = SymbolSet('S', ['S'])
         S2 = s_symbols.S
@@ -41,12 +42,15 @@ class SymbolTestCase(TestCase):
 
         self.assertEqual(unicode(test0), u'test0')
         self.assertEqual(str(test0), 'test0')
-        self.assertEqual(repr(test0), 'test0')
-        self.assertEqual(unicode(test_symbols), u'{test0}')
-        self.assertEqual(str(test_symbols), '{test0}')
+        self.assertEqual(repr(test0), 'test.test0')
+        self.assertEqual(unicode(test_symbols), u'SymbolSet([test0])')
+        self.assertEqual(str(test_symbols), 'SymbolSet([test0])')
         self.assertEqual(repr(test_symbols), 'SymbolSet(test, [test0])')
         self.assertEqual(test0.codename, u'test0')
         self.assertEqual(test0.display_name, u'test0')
+        self.assertEqual(repr(test_symbols2), 'SymbolSet(test, [t])')
+        self.assertEqual(str(test_symbols2), 'SymbolSet([T])')
+        self.assertEqual(unicode(test_symbols2), 'SymbolSet([T])')
 
         self.assertEqual(rb_o.display_name, '(')
 

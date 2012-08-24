@@ -45,7 +45,7 @@ class SLRSituationState(AtomState):
         next_sym_str = ' '.join([fun(bs)
                                     for bs in self._body_next_symbols])
         return '%s -> %s' % (fun(self._head_symbol),
-                    ' '.join(filter(None, [prev_sym_str, "(@)", next_sym_str])))
+                    ' '.join(filter(None, [prev_sym_str, "#", next_sym_str])))
 
     def __unicode__(self):
         return self.show(unicode)

@@ -19,10 +19,10 @@ class ParserStatesTestCase(TestCase):
         ])
 
         nt = SymbolSet('nt', [
-            'value',
-            'exp',
-            'product',
-            'start',
+            ('value', 'V'),
+            ('exp', 'E'),
+            ('product', 'P'),
+            ('start', 'S'),
         ])
 
         rules = [
@@ -53,6 +53,7 @@ class ParserStatesTestCase(TestCase):
         print repr(s0)
 
         for a in s0.actions:
-            print s0.next_states(a)
+            for ns in s0.next_states(a):
+                print ns
 
         self.assertEqual(1, 0)

@@ -31,7 +31,7 @@ class Symbol(object):
         return str(self._display_name)
 
     def __repr__(self):
-        return str(self._codename)
+        return '%s.%s' % (self._symbol_set.codename, self._codename)
 
     def __unicode__(self):
         return unicode(self._display_name)
@@ -108,16 +108,27 @@ class SymbolSet(Set):
     def __contains__(self, elem):
         return elem in self._symbols.values()
 
+    def show(self, fun):
+        return '%s([%s])' % (
+                        self.__class__.__name__,
+                        ', '.join([fun(s)
+                                    for s in self._symbols.values()]))
+
     def __repr__(self):
-        return 'SymbolSet(%s, [%s])' % (
+        return '%s(%s, [%s])' % (
+                        self.__class__.__name__,
                         self._codename,
-                        ', '.join([repr(s) for s in self._symbols.values()]))
+                        ', '.join([s.codename for s in self._symbols.values()]))
 
     def __str__(self):
-        return '{%s}' % (', '.join([str(s) for s in self._symbols.values()]))
+        return self.show(str)
 
     def __unicode__(self):
-        return u'{%s}' % (u', '.join([unicode(s) for s in self._symbols.values()]))
+        return self.show(unicode)
+
+    @property
+    def codename(self):
+        return self._codename
 
 
 class FileLocation(object):

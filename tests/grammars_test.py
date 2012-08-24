@@ -110,10 +110,10 @@ class GrammarTestCase(TestCase):
         ])
 
         nt = SymbolSet('nt', [
-            'value',
-            'exp',
-            'product',
-            'start',
+            ('value', 'V'),
+            ('exp', 'E'),
+            ('product', 'P'),
+            ('start', 'S'),
         ])
 
         rules = [
