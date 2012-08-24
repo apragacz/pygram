@@ -3,7 +3,8 @@ from unittest import TestCase
 from pygram.grammars.cfg import CFG, CFGExtended, CFGRule
 from pygram.grammars.reductions import Reduction
 from pygram.grammars.symbols import SymbolSet, SymbolInstance, fundamental
-from pygram.parsers.states.slr import SLRState, SLRSituationState
+from pygram.parsers.states.slr import (SLRState, SLRSituationState,
+    SLRStateGenerator)
 
 
 class ParserStatesTestCase(TestCase):
@@ -42,8 +43,6 @@ class ParserStatesTestCase(TestCase):
         start_situation = SLRSituationState(start_rule.head_symbol,
                                             (), start_rule.body_symbols)
 
-        slr_states = set([])
-
         s0 = SLRState(cfg, [start_situation])
 
         print s0.actions
@@ -51,6 +50,8 @@ class ParserStatesTestCase(TestCase):
         print str(s0)
         print unicode(s0)
         print repr(s0)
+
+        gen = SLRStateGenerator(cfg)
 
         for a in s0.actions:
             for ns in s0.next_states(a):

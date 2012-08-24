@@ -1,4 +1,6 @@
-from pygram.core.states import AtomState, MultiState
+from collections import deque
+
+from ...core.states import AtomState, MultiState
 
 
 class SLRSituationState(AtomState):
@@ -89,5 +91,35 @@ class SLRState(MultiState):
         return frozenset(result)
 
 
-def generate_parser_states(grammar):
-    pass
+class SLRStateGenerator(object):
+
+    def __init__(self, cf_grammar):
+        self._cfg = cf_grammar
+        self._states = set([])
+        self._edges = {}
+        self.generate()
+
+    def generate(self):
+        start_rules = self._cfg.rules_for_symbol(self._cfg.start_symbol)
+        start_situations = [SLRSituationState(r.head_symbol, (), r.body_symbols)
+                            for r in start_rules]
+        start_state = SLRState(self._cfg, start_situations)
+
+        states_to_process = deque()
+        states = set([start_state])
+        states_to_process.append(start_state)
+        edges = {}
+
+        print 'generated %s' % start_state
+        while states_to_process:
+            state = states_to_process.popleft()
+            for symbol in state.actions:
+                next_states = state.next_states(symbol)
+                for next_state in next_states:
+                    if next_state not in states:
+                        print 'generated %s' % next_state
+                        states.add(next_state)
+                        states_to_process.append(next_state)
+
+        self._states = states
+        self._edges = edges
