@@ -55,6 +55,9 @@ class GrammarTestCase(TestCase):
         cfgex = CFGExtended(nonterminal_symbols, terminal_symbols,
                             reductions, S)
 
+        self.assertSetEqual(set(terminal_symbols), cfg.terminal_symbols)
+        self.assertSetEqual(set(nonterminal_symbols), cfg.nonterminal_symbols)
+
         symbol_instances1 = [
             SymbolInstance(rb_o),
             SymbolInstance(S, '[]'),
