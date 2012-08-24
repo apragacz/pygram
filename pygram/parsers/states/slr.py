@@ -110,7 +110,6 @@ class SLRStateGenerator(object):
         states_to_process.append(start_state)
         edges = {}
 
-        print 'generated %s' % start_state
         while states_to_process:
             state = states_to_process.popleft()
             edges.setdefault(state, {})
@@ -120,7 +119,6 @@ class SLRStateGenerator(object):
                 assert(len(next_states) == 1)
                 next_state = next_states[0]
                 if next_state not in states:
-                    print 'generated %s' % next_state
                     states.add(next_state)
                     states_to_process.append(next_state)
 

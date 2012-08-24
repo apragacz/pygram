@@ -45,16 +45,34 @@ class ParserStatesTestCase(TestCase):
 
         s0 = SLRState(cfg, [start_situation])
 
-        print s0.actions
+        cmp1_s0 = SLRState(cfg, [
+            SLRSituationState(nt.start, (), (nt.exp,)),
+            SLRSituationState(nt.exp, (), (nt.exp, t.add, nt.product)),
+            SLRSituationState(nt.exp, (), (nt.product,)),
+            SLRSituationState(nt.product, (), (nt.product, t.mul, nt.value)),
+            SLRSituationState(nt.product, (), (nt.value,)),
+            SLRSituationState(nt.value, (), (t.bra_open, nt.exp, t.bra_close)),
+            SLRSituationState(nt.value, (), (t.id,)),
+        ])
+        cmp2_s0 = SLRState(cfg, [
+            SLRSituationState(nt.start, (), (nt.exp,)),
+            SLRSituationState(nt.exp, (nt.exp,), (t.add, nt.product)),
+        ])
 
-        print str(s0)
-        print unicode(s0)
-        print repr(s0)
+        self.assertEqual(s0, cmp1_s0)
+        self.assertNotEqual(s0, cmp2_s0)
 
-        gen = SLRStateGenerator(cfg)
+        self.assertEqual(repr(s0)[:len('SLRState([')], 'SLRState([')
+
+        self.assertEqual(unicode(str(s0)), unicode(s0))
+
+        self.assertSetEqual(s0.actions, frozenset([
+            nt.exp, nt.product, nt.value,
+            t.id, t.bra_open
+        ]))
 
         for a in s0.actions:
-            for ns in s0.next_states(a):
-                print ns
+            next_states = s0.next_states(a)
+            self.assertEqual(len(next_states), 1)
 
-        self.assertEqual(1, 0)
+        gen = SLRStateGenerator(cfg)
