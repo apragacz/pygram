@@ -1,6 +1,8 @@
 from collections import deque
 
 from ...core.states import AtomState, MultiState
+from ...grammars.reductions import Reduction
+from ...grammars.cfg import CFGRule
 
 
 class SLRSituationState(AtomState):
@@ -59,6 +61,14 @@ class SLRSituationState(AtomState):
         return self.show(repr)
 
     @property
+    def head_symbol(self):
+        return self._head_symbol
+
+    @property
+    def body_previous_symbols(self):
+        return self._body_previous_symbols
+
+    @property
     def body_next_symbols(self):
         return self._body_next_symbols
 
@@ -90,6 +100,14 @@ class SLRState(MultiState):
             result.update(s.actions)
         return frozenset(result)
 
+    def reduction_rule(self, follow_symbol):
+        for situation in self._atom_states:
+            if situation.head_symbol != self._cfg.start_symbol:
+                if situation.body_next_symbols == ():
+                    return CFGRule(situation.head_symbol,
+                                    situation.body_previous_symbols)
+        return None
+
 
 class SLRStateGenerator(object):
 
@@ -114,13 +132,37 @@ class SLRStateGenerator(object):
             state = states_to_process.popleft()
             edges.setdefault(state, {})
             for symbol in state.actions:
-                edges[state].setdefault(symbol, {})
                 next_states = state.next_states(symbol)
                 assert(len(next_states) == 1)
                 next_state = next_states[0]
+                edges[state][symbol] = next_state
                 if next_state not in states:
                     states.add(next_state)
                     states_to_process.append(next_state)
 
         self._states = states
         self._edges = edges
+
+    def generate_tables(self):
+        states = self._states
+        edges = self._edges
+        cfg = self._cfg
+        terminal_symbols = cfg.terminal_symbols
+        action_table = {}
+        transition_table = {}
+        state_id_map = {}
+        for i, state in enumerate(self._states):
+            state_id_map[state] = i
+
+        for state in states:
+            action_table[state_id_map[state]] = {}
+            for symbol in terminal_symbols:
+                action_shift_state = None
+                action_reduction = None
+                if state in edges and symbol in edges[state]:
+                    action_shift_state = state_id_map[edges[state][symbol]]
+                action_reduction = Reduction(state.reduction_rule(symbol))
+
+                action_table[state_id_map[state]][symbol] = (action_shift_state,
+                                                            action_reduction)
+        return (action_table, transition_table)

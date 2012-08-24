@@ -4,7 +4,12 @@ from .symbols import SymbolInstance
 class Reduction(object):
     def __init__(self, rule, callback=None):
         self._rule = rule
-        self._callback = callback
+        if callback is None:
+            def tuplereduce(*args):
+                return tuple(args)
+            self._callback = tuplereduce
+        else:
+            self._callback = callback
 
     @property
     def rule(self):

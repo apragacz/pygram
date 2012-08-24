@@ -76,3 +76,4 @@ class ParserStatesTestCase(TestCase):
             self.assertEqual(len(next_states), 1)
 
         gen = SLRStateGenerator(cfg)
+        gen.generate_tables()

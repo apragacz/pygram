@@ -97,7 +97,3 @@ class MultiState(DeterministicState):
     def __unicode__(self):
         return self.show(unicode)
 
-    @classmethod
-    def generate_all(start_atom_states):
-        #TODO:
-        pass
