@@ -151,6 +151,10 @@ class CFG(Grammar):
     def follow_terminals(self, nonterm_symbol):
         return self._follow_terminals[nonterm_symbol]
 
+    def reduction_for_rule(self, rule):
+        from .reductions import Reduction
+        return Reduction(rule)
+
     @property
     def terminal_symbols(self):
         return self._term_symbols
@@ -173,6 +177,11 @@ class CFGExtended(CFG):
     def __init__(self, nonterm_symbols, term_symbols, reductions,
                 start_symbol):
         rules = tuple((reduction.rule for reduction in reductions))
+        self._reductions = tuple(reductions)
+        self.rules_to_reductions_map = dict(((reduction.rule, reduction)
+                                            for reduction in reductions))
         super(CFGExtended, self).__init__(nonterm_symbols, term_symbols,
                                             rules, start_symbol)
-        self._reductions = tuple(reductions)
+
+    def reduction_for_rule(self, rule):
+        return self.rules_to_reductions_map[rule]

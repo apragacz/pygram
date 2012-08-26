@@ -148,6 +148,7 @@ class SLRStateGenerator(object):
         edges = self._edges
         cfg = self._cfg
         terminal_symbols = cfg.terminal_symbols
+        nonterminal_symbols = cfg.nonterminal_symbols
         action_table = {}
         transition_table = {}
         state_id_map = {}
@@ -156,13 +157,28 @@ class SLRStateGenerator(object):
 
         for state in states:
             action_table[state_id_map[state]] = {}
+            transition_table[state_id_map[state]] = {}
             for symbol in terminal_symbols:
                 action_shift_state = None
                 action_reduction = None
                 if state in edges and symbol in edges[state]:
                     action_shift_state = state_id_map[edges[state][symbol]]
-                action_reduction = Reduction(state.reduction_rule(symbol))
+                rule = state.reduction_rule(symbol)
+                if rule:
+                    action_reduction = cfg.reduction_for_rule(rule)
+                else:
+                    action_reduction = None
+
+                if action_reduction is None and action_shift_state is None:
+                    raise ValueError('no shift/reduction')
+                if action_reduction is not None and action_shift_state is not None:
+                    raise ValueError('shift/reduction conflict.'
+                                        ' grammar propably not SLR')
 
                 action_table[state_id_map[state]][symbol] = (action_shift_state,
                                                             action_reduction)
+            for symbol in nonterminal_symbols:
+                if state in edges and symbol in edges[state]:
+                    transition = state_id_map[edges[state][symbol]]
+                    transition_table[state_id_map[state]][symbol] = transition
         return (action_table, transition_table)
