@@ -1,7 +1,7 @@
 from collections import deque
 
 from ...core.states import AtomState, MultiState
-from ...grammars.reductions import Reduction
+from ...grammars.symbols import fundamental
 from ...grammars.cfg import CFGRule
 
 
@@ -102,10 +102,12 @@ class SLRState(MultiState):
 
     def reduction_rule(self, follow_symbol):
         for situation in self._atom_states:
-            if situation.head_symbol != self._cfg.start_symbol:
-                if situation.body_next_symbols == ():
-                    return CFGRule(situation.head_symbol,
-                                    situation.body_previous_symbols)
+            follow_terms = self._cfg.follow_terminals(situation.head_symbol)
+            if (situation.head_symbol != self._cfg.start_symbol
+                    and situation.body_next_symbols == ()
+                    and follow_symbol in follow_terms):
+                return CFGRule(situation.head_symbol,
+                                situation.body_previous_symbols)
         return None
 
 
@@ -147,7 +149,7 @@ class SLRStateGenerator(object):
         states = self._states
         edges = self._edges
         cfg = self._cfg
-        terminal_symbols = cfg.terminal_symbols
+        terminal_symbols = frozenset([fundamental.empty]).union(cfg.terminal_symbols)
         nonterminal_symbols = cfg.nonterminal_symbols
         action_table = {}
         transition_table = {}
@@ -161,6 +163,7 @@ class SLRStateGenerator(object):
             for symbol in terminal_symbols:
                 action_shift_state = None
                 action_reduction = None
+                action_state = 0
                 if state in edges and symbol in edges[state]:
                     action_shift_state = state_id_map[edges[state][symbol]]
                 rule = state.reduction_rule(symbol)
@@ -170,12 +173,17 @@ class SLRStateGenerator(object):
                     action_reduction = None
 
                 if action_reduction is None and action_shift_state is None:
-                    raise ValueError('no shift/reduction')
+                    #no shift/reduction
+                    action_state = -1
                 if action_reduction is not None and action_shift_state is not None:
-                    raise ValueError('shift/reduction conflict.'
-                                        ' grammar propably not SLR')
+                    raise ValueError('shift/reduction conflict for state %s,'
+                                    ' symbol %s. grammar propably not SLR' % (
+                                                                        state,
+                                                                        symbol,
+                                        ))
 
-                action_table[state_id_map[state]][symbol] = (action_shift_state,
+                action_table[state_id_map[state]][symbol] = (action_state,
+                                                            action_shift_state,
                                                             action_reduction)
             for symbol in nonterminal_symbols:
                 if state in edges and symbol in edges[state]:
