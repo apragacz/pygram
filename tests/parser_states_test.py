@@ -1,15 +1,14 @@
 from unittest import TestCase
 
-from pygram.grammars.cfg import CFG, CFGExtended, CFGRule
-from pygram.grammars.reductions import Reduction
-from pygram.grammars.symbols import SymbolSet, SymbolInstance, fundamental
+from pygram.grammars.cfg import CFG, CFGRule
+from pygram.grammars.symbols import SymbolSet
 from pygram.parsers.states.slr import (SLRState, SLRSituationState,
     SLRStateGenerator)
 
 
 class ParserStatesTestCase(TestCase):
 
-    def test_exp(self):
+    def test_exp_slr(self):
 
         t = SymbolSet('t', [
             ('bra_open', '('),

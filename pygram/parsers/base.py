@@ -1,5 +1,7 @@
 from collections import deque
 
+from ..grammars.symbols import fundamental
+
 
 class LRParser(object):
 
@@ -10,6 +12,7 @@ class LRParser(object):
 
     def parse(self, symbol_instances):
         next_symbol_instances = deque(symbol_instances)
+        next_symbol_instances.append(fundamental.empty)
         action_table = self._action_table
         transition_table = self._transition_table
         stack = self._stack
@@ -31,11 +34,14 @@ class LRParser(object):
             next_symbol_instance = next_symbol_instances_topleft()
             next_symbol = next_symbol_instance.symbol
             action = action_table[current_state][next_symbol]
-            next_state, reduction = action
+            code, next_state, reduction = action
+            if code < 0:
+                raise ValueError('invalid state, error code %d' % (-code))
             if next_state:
                 #shift
                 stack.append((next_symbol_instance, next_state))
                 next_symbol_instances.popleft()
+                print 'shifting %s' % next_symbol
             elif reduction:
                 #reduction
                 reduction_len = len(reduction.rule.body_symbols)
@@ -49,8 +55,15 @@ class LRParser(object):
                 symbol_instances = [si for si, _ in reversed(rev_reduction_elems)]
                 reduced_symbol_instance = reduction.reduce_instances(
                                                             symbol_instances)
+
+                if code > 0:
+                    #success! parsing ended, return reduced value
+                    return reduced_symbol_instance.value
+
                 reduced_symbol = reduced_symbol_instance.symbol
                 next_state = transition_table[current_state][reduced_symbol]
                 stack.append((reduced_symbol_instance, next_state))
             else:
-                ValueError('invalid state')
+                raise ValueError('invalid state, neither shift nor reduction defined')
+
+        raise ValueError('invalid state, parser gone out of control scope')

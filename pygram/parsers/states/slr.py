@@ -103,8 +103,7 @@ class SLRState(MultiState):
     def reduction_rule(self, follow_symbol):
         for situation in self._atom_states:
             follow_terms = self._cfg.follow_terminals(situation.head_symbol)
-            if (situation.head_symbol != self._cfg.start_symbol
-                    and situation.body_next_symbols == ()
+            if (situation.body_next_symbols == ()
                     and follow_symbol in follow_terms):
                 return CFGRule(situation.head_symbol,
                                 situation.body_previous_symbols)
@@ -126,7 +125,8 @@ class SLRStateGenerator(object):
         start_state = SLRState(self._cfg, start_situations)
 
         states_to_process = deque()
-        states = set([start_state])
+        states = [start_state]
+        states_set = set([start_state])
         states_to_process.append(start_state)
         edges = {}
 
@@ -138,8 +138,9 @@ class SLRStateGenerator(object):
                 assert(len(next_states) == 1)
                 next_state = next_states[0]
                 edges[state][symbol] = next_state
-                if next_state not in states:
-                    states.add(next_state)
+                if next_state not in states_set:
+                    states_set.add(next_state)
+                    states.append(next_state)
                     states_to_process.append(next_state)
 
         self._states = states
@@ -168,6 +169,8 @@ class SLRStateGenerator(object):
                     action_shift_state = state_id_map[edges[state][symbol]]
                 rule = state.reduction_rule(symbol)
                 if rule:
+                    if rule.head_symbol == cfg.start_symbol:
+                        action_state = 1
                     action_reduction = cfg.reduction_for_rule(rule)
                 else:
                     action_reduction = None
