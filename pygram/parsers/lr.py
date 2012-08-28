@@ -13,8 +13,10 @@ class LRParser(Parser):
         self._transition_table = transition_table
         self._stack = deque([(None, initial_state)])
         self._debug_info = debug_info or {}
+        self._initial_state = initial_state
 
     def parse(self, tokens):
+        self._stack = deque([(None, self._initial_state)])
         next_tokens = deque(tokens)
         #adding artificial end token
         next_tokens.append(Token(symbol=fundamental.end))
