@@ -119,11 +119,15 @@ class SLRStateGenerator(object):
         self._edges = {}
         self.generate()
 
-    def generate(self):
+    def generate_start_state(self):
         start_rules = self._cfg.rules_for_symbol(self._cfg.start_symbol)
         start_situations = [SLRSituationState(r.head_symbol, (), r.body_symbols)
                             for r in start_rules]
         start_state = SLRState(self._cfg, start_situations)
+        return start_state
+
+    def generate(self):
+        start_state = self.generate_start_state()
 
         states_to_process = deque()
         states = [start_state]
