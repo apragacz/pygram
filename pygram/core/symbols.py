@@ -131,28 +131,4 @@ class SymbolSet(Set):
         return self._codename
 
 
-class FileLocation(object):
-    def __init__(self, filename=None, start_line=None, start_column=None,
-                    end_line=None, end_column=None):
-        self._filename = filename
-        self._start_line = start_line
-        self._start_column = start_column
-        self._end_line = end_line
-
-
-class SymbolInstance(object):
-    def __init__(self, symbol, value=None, location=None):
-        self._symbol = symbol
-        self._value = value
-        self._location = location
-
-    @property
-    def symbol(self):
-        return self._symbol
-
-    @property
-    def value(self):
-        return self._value
-
-
 fundamental = SymbolSet('fundamental', [('empty', 'e'), ('end', '$')])

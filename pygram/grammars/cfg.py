@@ -1,5 +1,5 @@
 from .base import GrammarRule, Grammar
-from .symbols import fundamental
+from ..core.symbols import fundamental
 
 
 class CFGRule(GrammarRule):
@@ -152,7 +152,7 @@ class CFG(Grammar):
         return self._follow_terminals[nonterm_symbol]
 
     def reduction_for_rule(self, rule):
-        from .reductions import Reduction
+        from ..core.reductions import Reduction
         return Reduction(rule)
 
     @property

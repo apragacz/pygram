@@ -1,9 +1,10 @@
 from unittest import TestCase
 
+from pygram.core.reductions import Reduction
+from pygram.core.symbols import SymbolSet
+from pygram.core.tokens import Token
 from pygram.grammars.cfg import CFGExtended, CFGRule
-from pygram.grammars.reductions import Reduction
-from pygram.grammars.symbols import SymbolSet, SymbolInstance
-from pygram.parsers.base import LRParser
+from pygram.parsers.lr import LRParser
 from pygram.parsers.states.slr import SLRStateGenerator
 
 
@@ -53,8 +54,8 @@ class ParsersTestCase(TestCase):
         action_table, transition_table = gen.generate_tables()
         parser = LRParser(action_table, transition_table, initial_state=0)
         symbol_instances = [
-            SymbolInstance(t.bra_open),
-            SymbolInstance(t.id, 1),
-            SymbolInstance(t.bra_close),
+            Token(t.bra_open),
+            Token(t.id, 1),
+            Token(t.bra_close),
         ]
         parser.parse(symbol_instances)

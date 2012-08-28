@@ -1,8 +1,9 @@
 from unittest import TestCase
 
 from pygram.grammars.cfg import CFG, CFGExtended, CFGRule
-from pygram.grammars.reductions import Reduction
-from pygram.grammars.symbols import SymbolSet, SymbolInstance, fundamental
+from pygram.core.reductions import Reduction
+from pygram.core.symbols import SymbolSet, fundamental
+from pygram.core.tokens import Token
 
 
 class GrammarTestCase(TestCase):
@@ -59,9 +60,9 @@ class GrammarTestCase(TestCase):
         self.assertSetEqual(set(nonterminal_symbols), cfg.nonterminal_symbols)
 
         symbol_instances1 = [
-            SymbolInstance(rb_o),
-            SymbolInstance(S, '[]'),
-            SymbolInstance(rb_c)
+            Token(rb_o),
+            Token(S, '[]'),
+            Token(rb_c)
         ]
 
         si1 = reductions[3].reduce_instances(symbol_instances1)
@@ -69,9 +70,9 @@ class GrammarTestCase(TestCase):
         self.assertEqual(si1.value, '([])')
 
         symbol_instances2 = [
-            SymbolInstance(sb_o),
+            Token(sb_o),
             si1,
-            SymbolInstance(sb_c)
+            Token(sb_c)
         ]
 
         si2 = reductions[4].reduce_instances(symbol_instances2)

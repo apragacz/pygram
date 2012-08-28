@@ -1,7 +1,7 @@
 from collections import deque
 
 from ...core.states import AtomState, MultiState
-from ...grammars.symbols import fundamental
+from ...core.symbols import fundamental
 from ...grammars.cfg import CFGRule
 
 

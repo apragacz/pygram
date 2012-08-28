@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pygram.grammars.symbols import SymbolSet
+from pygram.core.symbols import SymbolSet
 
 
 class SymbolTestCase(TestCase):

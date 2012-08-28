@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from pygram.grammars.cfg import CFG, CFGRule
-from pygram.grammars.symbols import SymbolSet
+from pygram.core.symbols import SymbolSet
 from pygram.parsers.states.slr import (SLRState, SLRSituationState,
     SLRStateGenerator)
 

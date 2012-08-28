@@ -96,4 +96,3 @@ class MultiState(DeterministicState):
 
     def __unicode__(self):
         return self.show(unicode)
-

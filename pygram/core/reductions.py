@@ -1,4 +1,4 @@
-from .symbols import SymbolInstance
+from .tokens import Token
 
 
 class Reduction(object):
@@ -20,7 +20,7 @@ class Reduction(object):
         assert(all([si.symbol == bs for si, bs in zip(symbol_instances,
                                                 self._rule.body_symbols)]))
         value = self._callback(*[si.value for si in symbol_instances])
-        return SymbolInstance(symbol=self._rule.head_symbol, value=value)
+        return Token(symbol=self._rule.head_symbol, value=value)
 
     def __unicode__(self):
         r'%s with reduction callback %s' (unicode(self._rule, self._callback))
