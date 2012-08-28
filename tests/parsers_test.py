@@ -64,7 +64,7 @@ class ParsersTestCase(TestCase):
 
         #self.dump_action_table(action_table, debug_info)
 
-        for parser in [slr_parser]:
+        for parser in [slr_parser, lr_parser]:
             tokens = [
                 Token(t.bra_open),
                 Token(t.id, 1),
