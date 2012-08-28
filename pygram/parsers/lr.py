@@ -7,7 +7,7 @@ from .base import Parser
 
 class LRParser(Parser):
 
-    def __init__(self, action_table, transition_table, initial_state=1,
+    def __init__(self, action_table, transition_table, initial_state=0,
                 debug_info=None):
         self._action_table = action_table
         self._transition_table = transition_table
@@ -15,9 +15,9 @@ class LRParser(Parser):
         self._debug_info = debug_info or {}
 
     def parse(self, tokens):
-        next_symbol_instances = deque(tokens)
+        next_tokens = deque(tokens)
         #adding artificial end token
-        next_symbol_instances.append(Token(symbol=fundamental.end))
+        next_tokens.append(Token(symbol=fundamental.end))
         action_table = self._action_table
         transition_table = self._transition_table
         stack = self._stack
@@ -28,16 +28,16 @@ class LRParser(Parser):
             except StopIteration:
                 raise IndexError('empty parser stack')
 
-        def next_symbol_instances_topleft():
+        def next_tokens_topleft():
             try:
-                return iter(next_symbol_instances).next()
+                return iter(next_tokens).next()
             except StopIteration:
                 raise IndexError('all symbol instances processed')
 
-        while next_symbol_instances:
+        while next_tokens:
             current_state = stack_top()[1]
-            next_symbol_instance = next_symbol_instances_topleft()
-            next_symbol = next_symbol_instance.symbol
+            next_token = next_tokens_topleft()
+            next_symbol = next_token.symbol
             if next_symbol not in action_table[current_state]:
                 raise ValueError('undefined action for state %d,'
                                 ' symbol %s' % (current_state, next_symbol))
@@ -55,8 +55,8 @@ class LRParser(Parser):
                     raise ValueError('invalid state, error code %d' % (-code))
             if next_state:
                 #shift
-                stack.append((next_symbol_instance, next_state))
-                next_symbol_instances.popleft()
+                stack.append((next_token, next_state))
+                next_tokens.popleft()
             elif reduction:
                 #reduction
                 reduction_len = len(reduction.rule.body_symbols)
@@ -67,17 +67,16 @@ class LRParser(Parser):
                 #updating current state
                 current_state = stack_top()[1]
 
-                symbol_instances = [si for si, _ in reversed(rev_reduction_elems)]
-                reduced_symbol_instance = reduction.reduce_instances(
-                                                            symbol_instances)
+                tokens = [si for si, _ in reversed(rev_reduction_elems)]
+                reduced_token = reduction.reduce_instances(tokens)
 
                 if code > 0:
                     #success! parsing ended, return reduced value
-                    return reduced_symbol_instance.value
+                    return reduced_token.value
 
-                reduced_symbol = reduced_symbol_instance.symbol
+                reduced_symbol = reduced_token.symbol
                 next_state = transition_table[current_state][reduced_symbol]
-                stack.append((reduced_symbol_instance, next_state))
+                stack.append((reduced_token, next_state))
             else:
                 raise ValueError('invalid state, neither shift nor reduction defined')
 
