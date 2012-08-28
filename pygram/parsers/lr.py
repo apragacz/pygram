@@ -1,19 +1,23 @@
 from collections import deque
 
 from ..core.symbols import fundamental
+from ..core.tokens import Token
 from .base import Parser
 
 
 class LRParser(Parser):
 
-    def __init__(self, action_table, transition_table, initial_state):
+    def __init__(self, action_table, transition_table, initial_state=1,
+                debug_info=None):
         self._action_table = action_table
         self._transition_table = transition_table
         self._stack = deque([(None, initial_state)])
+        self._debug_info = debug_info or {}
 
     def parse(self, tokens):
         next_symbol_instances = deque(tokens)
-        next_symbol_instances.append(fundamental.empty)
+        #adding artificial end token
+        next_symbol_instances.append(Token(symbol=fundamental.end))
         action_table = self._action_table
         transition_table = self._transition_table
         stack = self._stack
@@ -34,15 +38,25 @@ class LRParser(Parser):
             current_state = stack_top()[1]
             next_symbol_instance = next_symbol_instances_topleft()
             next_symbol = next_symbol_instance.symbol
+            if next_symbol not in action_table[current_state]:
+                raise ValueError('undefined action for state %d,'
+                                ' symbol %s' % (current_state, next_symbol))
             action = action_table[current_state][next_symbol]
+            if not action or len(action) != 3:
+                raise ValueError('invalid action %s for state %d,'
+                                ' symbol %s' % (action, current_state, next_symbol))
             code, next_state, reduction = action
             if code < 0:
-                raise ValueError('invalid state, error code %d' % (-code))
+                if self._debug_info:
+                    mstate = self._debug_info.get(current_state, None)
+                    raise ValueError('invalid state, error code %d'
+                                    ' at state %s' % (-code, mstate))
+                else:
+                    raise ValueError('invalid state, error code %d' % (-code))
             if next_state:
                 #shift
                 stack.append((next_symbol_instance, next_state))
                 next_symbol_instances.popleft()
-                print 'shifting %s' % next_symbol
             elif reduction:
                 #reduction
                 reduction_len = len(reduction.rule.body_symbols)

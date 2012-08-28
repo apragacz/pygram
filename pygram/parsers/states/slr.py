@@ -100,13 +100,14 @@ class SLRState(MultiState):
             result.update(s.actions)
         return frozenset(result)
 
-    def reduction_rule(self, follow_symbol):
+    def find_reduction_rule(self, follow_symbol):
         for situation in self._atom_states:
             follow_terms = self._cfg.follow_terminals(situation.head_symbol)
             if (situation.body_next_symbols == ()
                     and follow_symbol in follow_terms):
-                return CFGRule(situation.head_symbol,
+                rule = CFGRule(situation.head_symbol,
                                 situation.body_previous_symbols)
+                return rule
         return None
 
 
@@ -150,24 +151,28 @@ class SLRStateGenerator(object):
         states = self._states
         edges = self._edges
         cfg = self._cfg
-        terminal_symbols = frozenset([fundamental.empty]).union(cfg.terminal_symbols)
+        terminal_symbols = frozenset([fundamental.end]).union(cfg.terminal_symbols)
         nonterminal_symbols = cfg.nonterminal_symbols
         action_table = {}
         transition_table = {}
+        debug_info = {}
         state_id_map = {}
         for i, state in enumerate(self._states):
             state_id_map[state] = i
 
+        debug_info = dict(((i, state) for state, i in state_id_map.iteritems()))
+
         for state in states:
             action_table[state_id_map[state]] = {}
             transition_table[state_id_map[state]] = {}
+            assert(fundamental.end in terminal_symbols)
             for symbol in terminal_symbols:
                 action_shift_state = None
                 action_reduction = None
                 action_state = 0
                 if state in edges and symbol in edges[state]:
                     action_shift_state = state_id_map[edges[state][symbol]]
-                rule = state.reduction_rule(symbol)
+                rule = state.find_reduction_rule(symbol)
                 if rule:
                     if rule.head_symbol == cfg.start_symbol:
                         action_state = 1
@@ -185,11 +190,11 @@ class SLRStateGenerator(object):
                                                                         symbol,
                                         ))
 
-                action_table[state_id_map[state]][symbol] = (action_state,
-                                                            action_shift_state,
-                                                            action_reduction)
+                action = (action_state, action_shift_state, action_reduction)
+                action_table[state_id_map[state]][symbol] = action
+
             for symbol in nonterminal_symbols:
                 if state in edges and symbol in edges[state]:
                     transition = state_id_map[edges[state][symbol]]
                     transition_table[state_id_map[state]][symbol] = transition
-        return (action_table, transition_table)
+        return (action_table, transition_table, debug_info)
