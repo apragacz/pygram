@@ -146,10 +146,13 @@ class CFG(Grammar):
                         if r.head_symbol == nonterm_symbol))
 
     def first_terminals(self, symbol):
-        return self._first_terminals[symbol]
+        if symbol == fundamental.end:
+            return frozenset([fundamental.end])
+        else:
+            return frozenset(self._first_terminals[symbol])
 
     def follow_terminals(self, nonterm_symbol):
-        return self._follow_terminals[nonterm_symbol]
+        return frozenset(self._follow_terminals[nonterm_symbol])
 
     def reduction_for_rule(self, rule):
         from ..core.reductions import Reduction
