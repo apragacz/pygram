@@ -6,11 +6,12 @@ from pygram.core.tokens import Token
 from pygram.grammars.cfg import CFGExtended, CFGRule
 from pygram.parsers.lr import LRParser
 from pygram.parsers.states.slr import SLRStateGenerator
+from pygram.parsers.states.lr import LRStateGenerator
 
 
 class ParsersTestCase(TestCase):
 
-    def test_exp_slr(self):
+    def test_exp(self):
 
         t = SymbolSet('t', [
             ('bra_open', '('),
@@ -50,86 +51,93 @@ class ParsersTestCase(TestCase):
         ]
 
         cfgex = CFGExtended(nt, t, reductions, nt.start)
-        gen = SLRStateGenerator(cfgex)
-        action_table, transition_table, debug_info = gen.generate_tables()
-        parser = LRParser(action_table, transition_table, initial_state=0,
-                            debug_info=debug_info)
+        slr_gen = SLRStateGenerator(cfgex)
+        lr_gen = LRStateGenerator(cfgex)
+        slr_action_table, slr_transition_table, slr_debug_info = slr_gen.generate_tables()
+        lr_action_table, lr_transition_table, lr_debug_info = lr_gen.generate_tables()
+        slr_parser = LRParser(slr_action_table, slr_transition_table,
+                            initial_state=0,
+                            debug_info=slr_debug_info)
+        lr_parser = LRParser(lr_action_table, lr_transition_table,
+                            initial_state=0,
+                            debug_info=lr_debug_info)
 
-        self.dump_action_table(action_table, debug_info)
+        #self.dump_action_table(action_table, debug_info)
 
-        tokens = [
-            Token(t.bra_open),
-            Token(t.id, 1),
-            Token(t.bra_close),
-        ]
-        result = parser.parse(tokens)
+        for parser in [slr_parser]:
+            tokens = [
+                Token(t.bra_open),
+                Token(t.id, 1),
+                Token(t.bra_close),
+            ]
+            result = parser.parse(tokens)
 
-        self.assertEqual(result, 1)
+            self.assertEqual(result, 1)
 
-        tokens = [
-            Token(t.id, 2),
-            Token(t.add),
-            Token(t.id, 2),
-        ]
-        result = parser.parse(tokens)
+            tokens = [
+                Token(t.id, 2),
+                Token(t.add),
+                Token(t.id, 2),
+            ]
+            result = parser.parse(tokens)
 
-        self.assertEqual(result, 4)
+            self.assertEqual(result, 4)
 
-        tokens = [
-            Token(t.id, 2),
-            Token(t.add),
-            Token(t.id, 2),
-            Token(t.mul),
-            Token(t.id, 2),
-        ]
-        result = parser.parse(tokens)
+            tokens = [
+                Token(t.id, 2),
+                Token(t.add),
+                Token(t.id, 2),
+                Token(t.mul),
+                Token(t.id, 2),
+            ]
+            result = parser.parse(tokens)
 
-        self.assertEqual(result, 6)
+            self.assertEqual(result, 6)
 
-        tokens = [
-            Token(t.id, 2),
-            Token(t.add),
-            Token(t.bra_open),
-            Token(t.id, 2),
-            Token(t.mul),
-            Token(t.id, 2),
-            Token(t.bra_close),
-        ]
-        result = parser.parse(tokens)
+            tokens = [
+                Token(t.id, 2),
+                Token(t.add),
+                Token(t.bra_open),
+                Token(t.id, 2),
+                Token(t.mul),
+                Token(t.id, 2),
+                Token(t.bra_close),
+            ]
+            result = parser.parse(tokens)
 
-        self.assertEqual(result, 6)
+            self.assertEqual(result, 6)
 
-        tokens = [
-            Token(t.bra_open),
-            Token(t.id, 2),
-            Token(t.add),
-            Token(t.id, 2),
-            Token(t.bra_close),
-            Token(t.mul),
-            Token(t.id, 2),
-        ]
-        result = parser.parse(tokens)
+            tokens = [
+                Token(t.bra_open),
+                Token(t.id, 2),
+                Token(t.add),
+                Token(t.id, 2),
+                Token(t.bra_close),
+                Token(t.mul),
+                Token(t.id, 2),
+            ]
+            result = parser.parse(tokens)
 
-        self.assertEqual(result, 8)
+            self.assertEqual(result, 8)
 
-        tokens = [
-            Token(t.bra_open),
-            Token(t.bra_open),
-            Token(t.id, 2),
-            Token(t.add),
-            Token(t.id, 3),
-            Token(t.bra_close),
-            Token(t.mul),
-            Token(t.bra_open),
-            Token(t.id, 7),
-            Token(t.add),
-            Token(t.id, 11),
-            Token(t.bra_close),
-            Token(t.bra_close),
-        ]
-        result = parser.parse(tokens)
+            tokens = [
+                Token(t.bra_open),
+                Token(t.bra_open),
+                Token(t.id, 2),
+                Token(t.add),
+                Token(t.id, 3),
+                Token(t.bra_close),
+                Token(t.mul),
+                Token(t.bra_open),
+                Token(t.id, 7),
+                Token(t.add),
+                Token(t.id, 11),
+                Token(t.bra_close),
+                Token(t.bra_close),
+            ]
+            result = parser.parse(tokens)
 
-        self.assertEqual(result, (2 + 3) * (7 + 11))
+            self.assertEqual(result, (2 + 3) * (7 + 11))
 
     def dump_action_table(self, action_table, debug_info):
         for state, actions in action_table.iteritems():
