@@ -2,5 +2,9 @@ class LexerError(Exception):
     pass
 
 
-class LexerIndentationError(LexerError):
+class BadIndentationError(LexerError):
+    pass
+
+
+class UnknownTokenError(LexerError):
     pass

@@ -1,7 +1,11 @@
 class FileLocation(object):
-    def __init__(self, filename=None, start_line=None, start_column=None,
-                    end_line=None, end_column=None):
+    def __init__(self, filename=None,
+                line_number=None,
+                column_number=None,
+                line_number_end=None,
+                column_number_end=None):
         self._filename = filename
-        self._start_line = start_line
-        self._start_column = start_column
-        self._end_line = end_line
+        self._line_number_start = line_number
+        self._column_number_start = column_number
+        self._line_number_end = line_number_end
+        self._column_number_end = column_number_end
