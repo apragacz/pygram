@@ -1,9 +1,9 @@
 import re
 from cStringIO import StringIO
 
+from ..core.exceptions import UnknownTokenError
 from ..core.locations import FileLocation
 from ..core.tokens import Token
-from .exceptions import UnknownTokenError
 
 
 class Lexer(object):
@@ -46,9 +46,6 @@ class Lexer(object):
 
         for line_number, line in enumerate(f):
 
-            if not line:
-                #EOF
-                break
             line = line.rstrip()
             if not line:
                 #omit empty lines
@@ -60,4 +57,5 @@ class Lexer(object):
                 yield token
 
     def tokenize_string(self, text, filename=None):
-        self.tokenize_file(StringIO(text), filename)
+        for token in self.tokenize_file(StringIO(text), filename):
+            yield token

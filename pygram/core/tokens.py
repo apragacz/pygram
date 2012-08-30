@@ -11,3 +11,7 @@ class Token(object):
     @property
     def value(self):
         return self._value
+
+    @property
+    def location(self):
+        return self._location

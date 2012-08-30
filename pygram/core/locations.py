@@ -9,3 +9,15 @@ class FileLocation(object):
         self._column_number_start = column_number
         self._line_number_end = line_number_end
         self._column_number_end = column_number_end
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def line_number(self):
+        return self._line_number_start
+
+    @property
+    def column_number(self):
+        return self._column_number_start
