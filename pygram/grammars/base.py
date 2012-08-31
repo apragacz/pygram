@@ -1,6 +1,7 @@
+from ..core.base import Immutable
 
 
-class GrammarRule(object):
+class GrammarRule(Immutable):
     pass
 
 

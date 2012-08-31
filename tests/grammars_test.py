@@ -85,6 +85,11 @@ class GrammarTestCase(TestCase):
 
         self.assertSetEqual(cfgex.first_terminals(rb_o), set([rb_o]))
 
+        tuple_reduction = Reduction(rules[3])
+        si3 = tuple_reduction.reduce_instances(symbol_instances1)
+        self.assertEqual(si3.symbol, S)
+        self.assertTupleEqual(si3.value, (None, '[]', None))
+
     def test_empty_symbol(self):
 
         nt = SymbolSet('nt', [

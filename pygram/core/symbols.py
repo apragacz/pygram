@@ -1,7 +1,9 @@
 from collections import Set, OrderedDict
 
+from .base import Immutable
 
-class Symbol(object):
+
+class Symbol(Immutable):
     def __init__(self, codename, display_name, symbol_set):
         self._symbol_set = symbol_set
         self._codename = codename
@@ -70,6 +72,9 @@ class SymbolSet(Set):
                 raise ValueError('symbol %s already exists' % codename)
 
             self._symbols[codename] = symbol
+
+    def __ne__(self, other):
+        return not (self == other)
 
     def __eq__(self, other):
         if self.__class__ != other.__class__:

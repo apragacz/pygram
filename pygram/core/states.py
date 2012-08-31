@@ -10,8 +10,6 @@ class Action(Immutable):
 
 class State(Immutable):
 
-    __metaclass__ = ABCMeta
-
     @abstractmethod
     def next_states(self, action):
         pass
@@ -21,9 +19,9 @@ class State(Immutable):
         pass
 
 
-class DeterministicState(object):
+class DeterministicState(State):
 
-    __metaclass__ = ABCMeta
+    #__metaclass__ = ABCMeta
 
     def next_states(self, action):
         st = self.next_state(action)
@@ -38,13 +36,10 @@ class DeterministicState(object):
 
 
 class AtomState(DeterministicState):
-
-    __metaclass__ = ABCMeta
+    pass
 
 
 class MultiState(DeterministicState):
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, atom_states):
         self._atom_states = frozenset(self.closure(atom_states))
