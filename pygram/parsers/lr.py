@@ -11,18 +11,16 @@ class LRParser(Parser):
                 debug_info=None):
         self._action_table = action_table
         self._transition_table = transition_table
-        self._stack = deque([(None, initial_state)])
         self._debug_info = debug_info or {}
         self._initial_state = initial_state
 
     def parse(self, tokens):
-        self._stack = deque([(None, self._initial_state)])
+        stack = deque([(None, self._initial_state)])
         next_tokens = deque(tokens)
         #adding artificial end token
         next_tokens.append(Token(symbol=fundamental.end))
         action_table = self._action_table
         transition_table = self._transition_table
-        stack = self._stack
 
         def stack_top():
             try:
