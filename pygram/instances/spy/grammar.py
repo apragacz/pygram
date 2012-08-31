@@ -1,6 +1,7 @@
 from ...core.symbols import SymbolSet
 from ...core.reductions import Reduction
 from ...grammars.cfg import CFGExtended, CFGRule
+from .statements import IfElseStatement
 
 R = CFGRule
 
@@ -9,11 +10,17 @@ t = SymbolSet('t', (
     'INDENT',
     'DEDENT',
     ('SEMICOLON', ';'),
-    ('COLON', ','),
+    ('COLON', ':'),
+    ('COMMA', ','),
     ('PERIOD', '.'),
+    ('IF', 'if'),
+    ('ELSE', 'else'),
+    ('ELIF', 'elif'),
 ))
 
 nt = SymbolSet('nt', (
+    'expression',
+
     'if_stmt',
     'while_stmt',
     'for_stmt',
@@ -35,14 +42,20 @@ identity = lambda x: x
 
 reductions = [
 
+#if_stmt ::=  "if" expression ":" suite
+#             ( "elif" expression ":" suite )*
+#             ["else" ":" suite]
+    Reduction(R(nt.if_stmt, (t.IF, nt.expression, t.COLON, nt.suite, t.ELSE, t.COLON, nt.suite)), lambda _, e1, __, sl1, ___, ____, s2: IfElseStatement((e1, sl1), s2)),
+
+    Reduction(R(nt.compound_stmt, (nt.if_stmt,)), identity),
     Reduction(R(nt.compound_stmt, (nt.if_stmt,)), identity),
 
-    Reduction(R(nt.stmt_list, (nt.simple_stmt,)), lambda x: (x,)),
-    Reduction(R(nt.stmt_list, (nt.stmt_list, t.SEMICOLON, nt.simple_stmt)), lambda x1, _, x2: x1 + (x2,)),
+    Reduction(R(nt.stmt_list, (nt.simple_stmt,)), lambda s: (s,)),
+    Reduction(R(nt.stmt_list, (nt.stmt_list, t.SEMICOLON, nt.simple_stmt)), lambda sl, _, s: sl + (s,)),
 
-    Reduction(R(nt.statement, (nt.stmt_list, t.NEWLINE)), lambda x1, _: x1),
-    Reduction(R(nt.statement, (nt.stmt_list, t.SEMICOLON, t.NEWLINE)), lambda x, _, __: x),
-    Reduction(R(nt.statement, (nt.compound_stmt,)), lambda x: (x,)),
+    Reduction(R(nt.statement, (nt.stmt_list, t.NEWLINE)), lambda sl, _: sl),
+    Reduction(R(nt.statement, (nt.stmt_list, t.SEMICOLON, t.NEWLINE)), lambda sl, _, __: sl),
+    Reduction(R(nt.statement, (nt.compound_stmt,)), lambda s: (s,)),
 
     Reduction(R(nt.suite_core, (t.statement)), identity),
     Reduction(R(nt.suite_core, (nt.suite_core, t.statement)), lambda x1, x2: x1 + x2),
