@@ -45,6 +45,7 @@ reductions = [
 #if_stmt ::=  "if" expression ":" suite
 #             ( "elif" expression ":" suite )*
 #             ["else" ":" suite]
+    #TODO: elif
     Reduction(R(nt.if_stmt, (t.IF, nt.expression, t.COLON, nt.suite, t.ELSE, t.COLON, nt.suite)), lambda _, e1, __, sl1, ___, ____, s2: IfElseStatement((e1, sl1), s2)),
 
     Reduction(R(nt.compound_stmt, (nt.if_stmt,)), identity),
