@@ -54,15 +54,17 @@ class IndentingLexer(Lexer):
                     last_indent_level = indent_level
                     yield Token(self._indent_symbol)
 
-                elif indent_level < last_indent_level:
-                    stack_top_indent_level = indent_level_stack.pop()
-                    if indent_level != stack_top_indent_level:
-                        location = FileLocation(filename,
-                                                line_number,
-                                                len(line_indent))
-                        raise BadIndentationError(location=location)
-                    last_indent_level = indent_level
-                    yield Token(self._dedent_symbol)
+                else:
+                    while indent_level < last_indent_level:
+                        stack_top_indent_level = indent_level_stack.pop()
+                        if stack_top_indent_level < indent_level:
+                            location = FileLocation(filename,
+                                                    line_number,
+                                                    len(line_indent))
+                            raise BadIndentationError(location=location)
+                        else:
+                            last_indent_level = stack_top_indent_level
+                            yield Token(self._dedent_symbol)
 
             for token in self.tokenize_line(line, line_number=line_number,
                                             filename=filename,

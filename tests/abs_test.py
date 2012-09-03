@@ -22,5 +22,3 @@ class AbstractBaseClassesTestCase(TestCase):
             pass
 
         Parser.parse.im_func(None, None)
-
-        self.assertTrue(False)
