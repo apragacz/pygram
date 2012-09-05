@@ -1,5 +1,22 @@
+class Environment(object):
+
+    def locals():
+        return {}
+
+    def globals():
+        return {}
+
+
+class Expression(object):
+
+    def evaluate(self, context):
+        return None
+
+
 class Statement(object):
-    pass
+
+    def interpret(self, context):
+        pass
 
 
 class CompoundStatement(Statement):
@@ -11,5 +28,5 @@ class IfElseStatement(CompoundStatement):
         self._conditions_suites = conditions_suites
         self._else_suite = else_suite
 
-    def interpret(self, context):
+    def interpret(self, environment):
         pass
