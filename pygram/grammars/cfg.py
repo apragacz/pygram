@@ -1,40 +1,23 @@
+from collections import namedtuple
+
 from .base import GrammarRule, Grammar
 from ..core.symbols import fundamental
 
+CFGRuleBase = namedtuple('CFGRuleBase', ('head_symbol', 'body_symbols'))
 
-class CFGRule(GrammarRule):
+
+class CFGRule(CFGRuleBase):
     def __init__(self, head_symbol, body_symbols):
-        self._head_symbol = head_symbol
-        self._body_symbols = tuple(body_symbols)
+        super(CFGRule, self).__init__(head_symbol, tuple(body_symbols))
 
     @property
     def rule(self):
         return self
 
-    @property
-    def head_symbol(self):
-        return self._head_symbol
-
-    @property
-    def body_symbols(self):
-        return self._body_symbols
-
-    def __eq__(self, other):
-        if self.__class__ != other.__class__:
-            return False
-        if self._head_symbol != other._head_symbol:
-            return False
-        if self._body_symbols != other._body_symbols:
-            return False
-        return True
-
-    def __hash__(self):
-        return hash(self._head_symbol) + hash(self._body_symbols)
-
     def __unicode__(self):
-        return u'%s -> %s' % (unicode(self._head_symbol),
+        return u'%s -> %s' % (unicode(self.head_symbol),
                                 u' '.join([unicode(bs)
-                                            for bs in self._body_symbols]))
+                                            for bs in self.body_symbols]))
 
 
 class CFG(Grammar):
