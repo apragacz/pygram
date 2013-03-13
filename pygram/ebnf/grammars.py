@@ -7,46 +7,95 @@ so you can create grammar while you create grammar
 from ..core.reductions import Reduction
 from ..grammars.cfg import CFGExtended, CFGRule
 from .symbols import t, nt
+from .statements import (SpecificationStatement, RuleStatement,
+                         AlternativeStatement, ConcatenationStatement,
+                         RepetitionStatement, OptionStatement,
+                         IdentStatement, StringStatement, SpecialStatement)
 
-#TODO: grammar
+identity = lambda stmt: stmt
+appended = lambda list_stmt, sep, stmt: list_stmt.appended(stmt)
 
-R = CFGRule
+'''
+specification -> rule_list  # added
 
+rule_list -> rule_list ; rule  # added
+rule_list -> rule  # added
 
-def identity(x):
-    return x
+rule -> head = body  # added
 
+head -> IDENT  # added
 
-def handle_spec(rule_list):
-    return rule_list
+body -> exp  # added
 
+exp -> atom
+exp -> alternative_list
 
-def handle_rule_list_1(rule_list, semicolon, rule):
-    assert(semicolon == ';')
-    return rule_list + (rule,)
+alternative_list -> alternative_list | alternative
+alternative_list -> alternative
 
+alternative -> concat_list
 
-def handle_rule_list_2(rule):
-    return (rule,)
+concat_list -> concat_list , concat
+concat_list -> concat
 
+concat -> atom
 
-def handle_rule(head, eq, body):
-    assert(eq == '=')
-    return (head, body)
+atom -> ( exp )  # added
+atom -> { exp }  # added
+atom -> [ exp ]  # added
+atom -> IDENT  # added
+atom -> STRING  # added
+atom -> SPECIAL  # added
+'''
 
+reduction_spec = [
+    # specification
+    (nt.specification, [nt.rule_list], identity),
 
-reductions = [
+    # rule_list
+    (nt.rule_list, [nt.rule_list, t.SEMICOLON, nt.rule], appended),
+    (nt.rule_list, [nt.rule], SpecificationStatement),
 
-    Reduction(R(nt.specification, (nt.rule_list,)), handle_spec),
+    # rule
+    (nt.rule, [nt.head, t.EQUALS, nt.body],
+     lambda ident_stmt, _, exp_stmt: RuleStatement([ident_stmt, exp_stmt])),
 
-    Reduction(R(nt.rule_list, (nt.rule_list, t.SEMICOLON, nt.rule)), handle_rule_list_1),
-    Reduction(R(nt.rule_list, (nt.rule,)), handle_rule_list_2),
+    # head
+    (nt.head, [t.IDENT], identity),
 
-    Reduction(R(nt.rule, (nt.head, t.EQUALS, nt.body)), handle_rule),
+    # body
+    (nt.body, [nt.exp], identity),
 
-    Reduction(R(nt.head, (t.IDENT,)), identity),
+    # exp
+    (nt.exp, [nt.atom], identity),
+    (nt.exp, [nt.alternative_list], identity),
 
-    Reduction(R(nt.body, (nt.exp,)), identity),
+    # alternative_list
+    (nt.alternative_list, [nt.alternative_list, t.OR, nt.alternative],
+     appended)
+    (nt.alternative_list, [nt.alternative], AlternativeStatement),
 
-    Reduction(R(nt.body, (nt.e,)), identity),
+    # alternative
+    (nt.alternative, [nt.concat_list], identity),
+
+    # concat_list
+    (nt.concat_list, [nt.concat_list, t.COMMA, nt.concat], appended)
+    (nt.concat_list, [nt.concat], ConcatenationStatement),
+
+    #concat
+    (nt.concat, [nt.atom], identity),
+
+    # atom
+    (nt.atom, [t.RBRA_O, nt.exp, t.RBRA_C],
+     lambda _, exp_stmt, __: exp_stmt),
+    (nt.atom, [t.CBRA_0, nt.exp, t.CBRA_C],
+     lambda _, exp_stmt, __: RepetitionStatement(exp_stmt)),
+    (nt.atom, [t.SBRA_0, nt.exp, t.SBRA_C],
+     lambda _, exp_stmt, __: OptionStatement(exp_stmt)),
+    (nt.atom, [t.IDENT], IdentStatement),
+    (nt.atom, [t.STRING], StringStatement),
+    (nt.atom, [t.SPECIAL], SpecialStatement),
 ]
+
+reductions = [Reduction(CFGRule(head, tuple(tail)), fun)
+              for head, tail, fun in reduction_spec]
